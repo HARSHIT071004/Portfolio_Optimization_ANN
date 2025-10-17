@@ -1,0 +1,30 @@
+# Python cache & compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+env/
+venv/
+.venv/
+
+# Flask / project specific
+instance/
+*.sqlite3
+
+# Model files
+model/portfolio_model.h5
+model/portfolio_model.pkl
+
+# Environment variables
+.env
+
+# IDE / OS specific
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

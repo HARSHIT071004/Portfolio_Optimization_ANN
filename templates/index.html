@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Portfolio Optimization ANN</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Enter Daily Returns for Stocks</h2>
+        <form action="/predict" method="post">
+            {% for ticker in ['AAPL','MSFT','AMZN','TSLA','SPY'] %}
+                <label>{{ ticker }}:</label>
+                <input type="text" name="{{ ticker }}" placeholder="e.g. 0.001">
+            {% endfor %}
+            <button type="submit">Predict Portfolio</button>
+        </form>
+    </div>
+</body>
+</html>
