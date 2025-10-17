@@ -1,22 +1,22 @@
 📊 Portfolio Optimization ANN Web App
 
-Live Demo: https://invest-harshit-genius.onrender.com
+Live Demo: View App
 
-A Flask web application that predicts optimal portfolio allocations for a set of stocks using a trained Artificial Neural Network (ANN) model. Users can input expected returns for select stocks and get recommended weights, along with estimated annual return, volatility, and Sharpe ratio.
+A Flask web app that predicts optimal portfolio allocations for selected stocks using a trained ANN model. Users input expected daily returns and get recommended weights, along with annualized return, volatility, and Sharpe ratio. Optimized for low-resource deployment on Render free tier.
 
-Features
+✨ Features
 
-Predict optimal portfolio weights for stocks: AAPL, MSFT, AMZN, TSLA, SPY
+Predict portfolio weights for AAPL, MSFT, AMZN, TSLA, SPY
 
 Lightweight ANN model integrated with Flask
 
-Annualized portfolio return, volatility, and Sharpe ratio calculation
+Calculate annual return, volatility, and Sharpe ratio
 
-Minimal resource usage for Render free tier deployment
+Minimal resource usage for Render free tier
 
-Logs user requests for easier debugging
+Logging enabled for request tracking
 
-Tech Stack
+🛠 Tech Stack
 
 Backend: Python, Flask
 
@@ -26,7 +26,7 @@ Frontend: HTML + CSS
 
 Deployment: Render.com (Free tier)
 
-Folder Structure
+📁 Folder Structure
 portfolio-flask-app/
 │
 ├─ app.py                 # Flask application
@@ -35,90 +35,65 @@ portfolio-flask-app/
 ├─ /model/
 │   └─ portfolio_model.h5 # Trained ANN model
 ├─ /templates/
-│   ├─ index.html         # Form page for user input
-│   └─ result.html        # Display portfolio results
+│   ├─ index.html         # Form page
+│   └─ result.html        # Portfolio results
 └─ /static/
     └─ style.css          # Optional styling
 
-Installation
-
-Clone the repo:
-
+⚡ Installation
 git clone <repo-url>
 cd portfolio-flask-app
-
-
-Install dependencies:
-
 pip install -r requirements.txt
 
 
-Ensure model exists:
-Place portfolio_model.h5 inside the /model/ folder.
+Ensure: portfolio_model.h5 is inside /model/
 
-Running Locally
+🚀 Running Locally
 export FLASK_APP=app.py
 export FLASK_ENV=development
 flask run
 
 
-Open http://127.0.0.1:5000
- in your browser.
+Open http://127.0.0.1:5000 in your browser.
 
-Deployment on Render (Free Tier)
+🌐 Deployment on Render (Free Tier)
 
-Push your repo to GitHub.
+Push repo to GitHub
 
-Create a new Web Service on Render.com
-.
+Create Web Service on Render
 
-Connect your GitHub repo.
+Connect GitHub repo
 
-Build Command:
+Build command: pip install -r requirements.txt
 
-pip install -r requirements.txt
-
-
-Start Command (Procfile):
+Start command (Procfile):
 
 web: gunicorn app:app --workers=1 --timeout 120
 
 
-Render will automatically detect PORT environment variable.
+Access live app at Render URL
 
-Access your live app at https://<your-app-name>.onrender.com.
-
-Usage
-
-Navigate to /
-
-Enter expected daily returns for each stock
-
-Click Predict
-
-View recommended portfolio weights and metrics
-
-API Endpoints
+🔗 API Endpoints
 Endpoint	Method	Description
 /	GET	Home page with input form
 /predict	POST	Predict portfolio weights
-/check_model	GET	Check if model is loaded correctly
-Notes / Optimizations
+/check_model	GET	Check if model is loaded
+📝 Notes / Optimizations
 
-TensorFlow is optimized for low memory usage on free Render tier:
+TensorFlow optimized for low memory:
 
 tf.config.set_visible_devices([], 'GPU')
 tf.config.threading.set_intra_op_parallelism_threads(1)
 tf.config.threading.set_inter_op_parallelism_threads(1)
 
 
-Single worker used to avoid SIGKILL / OOM errors
+Single worker to prevent OOM / SIGKILL errors
 
-Logging enabled for request tracking:
+Logging enabled:
 
 logging.info("Form data received: %s", request.form)
 logging.info("User input array: %s", user_input)
 
-License
+📜 License
 
 MIT License
