@@ -7,7 +7,10 @@ app = Flask(__name__)
 
 # Load trained ANN model
 model_path = os.path.join(os.path.dirname(__file__), 'model', 'portfolio_model.h5')
-model = load_model(model_path, compile=False)
+if os.path.exists(model_path):
+    model = load_model(model_path, compile=False)
+else:
+    model = None  # temporary None if model missing
 
 tickers = ['AAPL', 'MSFT', 'AMZN', 'TSLA', 'SPY']
 
@@ -17,6 +20,8 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
+    if model is None:
+        return "Error: Model not found ❌"
     try:
         # Get user input
         user_input = []
@@ -50,6 +55,14 @@ def predict():
                                sharpe_ratio=round(sharpe_ratio,2))
     except Exception as e:
         return f"Error: {str(e)}"
+
+@app.route('/check_model')
+def check_model():
+    model_path = os.path.join(os.path.dirname(__file__), 'model', 'portfolio_model.h5')
+    if os.path.exists(model_path):
+        return "Model exists ✅"
+    else:
+        return "Model missing ❌"
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
