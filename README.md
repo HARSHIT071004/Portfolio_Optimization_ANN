@@ -1,6 +1,6 @@
 📊 Portfolio Optimization ANN Web App
 
-Live Demo: View App
+Live Demo: [View App](https://invest-harshit-genius.onrender.com/)
 
 A Flask web app that predicts optimal portfolio allocations for selected stocks using a trained ANN model. Users input expected daily returns and get recommended weights, along with annualized return, volatility, and Sharpe ratio. Optimized for low-resource deployment on Render free tier.
 
