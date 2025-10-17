@@ -13,9 +13,9 @@ venv/
 instance/
 *.sqlite3
 
-# Model files
-model/portfolio_model.h5
-model/portfolio_model.pkl
+# # Model files
+# model/portfolio_model.h5
+# model/portfolio_model.pkl
 
 # Environment variables
 .env
