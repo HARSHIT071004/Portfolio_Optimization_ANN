@@ -1,40 +1,21 @@
 import os
-import sys
 import gc
 import logging
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['MPLBACKEND'] = 'Agg'
 
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.models import load_model
 from flask import Flask, render_template, request
-
-# Optimize TensorFlow for low-memory (Render free tier)
-tf.config.set_visible_devices([], 'GPU')
-tf.config.threading.set_intra_op_parallelism_threads(1)
-tf.config.threading.set_inter_op_parallelism_threads(1)
-for gpu in tf.config.list_physical_devices('GPU'):
-    tf.config.experimental.set_memory_growth(gpu, True)
+from predict_numpy import predict as model_predict
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-# Load model at module level (shared across gunicorn workers)
-model_path = os.path.join(os.path.dirname(__file__), 'model', 'portfolio_model.h5')
-model = None
-if os.path.exists(model_path):
-    try:
-        model = load_model(model_path, compile=False)
-        model.predict(np.zeros((1, 5)), verbose=0)
-        logger.info("Model loaded and warmed up successfully")
-    except Exception as e:
-        logger.error("Failed to load model: %s", str(e))
-else:
-    logger.error("Model file not found at %s", model_path)
+# Quick warm-up to ensure weights load at startup
+model_predict(np.zeros((1, 5), dtype=np.float32))
+logger.info("Model loaded and warmed up successfully (NumPy)")
 
 tickers = ['AAPL', 'MSFT', 'AMZN', 'TSLA', 'SPY']
 daily_returns_mean = np.array([0.0005, 0.0006, 0.0007, 0.0008, 0.0004])
@@ -46,10 +27,6 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    if model is None:
-        logger.error("Prediction failed: model not loaded")
-        return "Error: Model not loaded", 500
-
     try:
         user_input = []
         for ticker in tickers:
@@ -61,7 +38,7 @@ def predict():
         user_input = np.array(user_input, dtype=np.float32).reshape(1, -1)
         logger.info("Input: %s", user_input.tolist())
 
-        pred_weights = model.predict(user_input, verbose=0, batch_size=1).flatten()
+        pred_weights = model_predict(user_input).flatten()
         logger.info("Raw prediction: %s", pred_weights.tolist())
 
         s = pred_weights.sum()
@@ -93,11 +70,9 @@ def predict():
 
 @app.route('/check_model')
 def check_model():
-    model_path = os.path.join(os.path.dirname(__file__), 'model', 'portfolio_model.h5')
-    if os.path.exists(model_path):
-        return "Model exists"
-    else:
-        return "Model missing"
+    return "Model available (NumPy)" if os.path.exists(
+        os.path.join(os.path.dirname(__file__), 'model', 'portfolio_weights.npz')
+    ) else "Model weights missing", 200
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
