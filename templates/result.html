@@ -1,38 +1,138 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Predicted Portfolio</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicted Portfolio &mdash; ANN Optimization</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h2>Predicted Portfolio Weights</h2>
-        <div class="metrics">
-            {% for stock, weight in portfolio.items() %}
-                <div class="metric">
-                    <h3>{{ stock }}</h3>
-                    <p>{{ weight }}</p>
+    {# Lookup dictionaries #}
+    {% set company_names = {
+        'AAPL': 'Apple Inc.',
+        'MSFT': 'Microsoft Corporation',
+        'AMZN': 'Amazon.com Inc.',
+        'TSLA': 'Tesla Inc.',
+        'SPY': 'SPDR S&P 500 ETF'
+    } %}
+
+    {% set insights = {
+        'AAPL': 'suggesting strong expected performance from the tech giant.',
+        'MSFT': 'indicating confidence in the software and cloud computing leader.',
+        'AMZN': 'reflecting expectations of strong e-commerce and cloud growth.',
+        'TSLA': 'signaling high growth expectations in the electric vehicle market.',
+        'SPY': 'favoring broad market stability over individual stock risk.'
+    } %}
+
+    {# Find the stock with the highest allocation #}
+    {% set ns = namespace(max_stock='', max_weight=0) %}
+    {% for stock, weight in portfolio.items() %}
+        {% if weight > ns.max_weight %}
+            {% set ns.max_stock = stock %}
+            {% set ns.max_weight = weight %}
+        {% endif %}
+    {% endfor %}
+
+    <div class="app-wrapper">
+
+        <header class="result-hero">
+            <div class="result-badge">AI-Generated</div>
+            <h1>Your Optimized Portfolio</h1>
+        </header>
+
+        <section class="weights-section">
+            <h2>Portfolio Allocation</h2>
+            <div class="bar-chart">
+                {% for stock, weight in portfolio.items() %}
+                <div class="bar-item">
+                    <span class="bar-label">{{ stock }}</span>
+                    <div class="bar-track">
+                        <div class="bar-fill" style="--bar-width: {{ (weight * 100)|round(1) }}%;"></div>
+                    </div>
+                    <span class="bar-value">{{ (weight * 100)|round(1) }}%</span>
                 </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="metrics-section">
+            <h2>Portfolio Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                            <polyline points="17 6 23 6 23 12"></polyline>
+                        </svg>
+                    </div>
+                    <div class="metric-value">{{ annual_return }}%</div>
+                    <div class="metric-label">Annual Return</div>
+                    <div class="metric-desc">Expected yearly return based on the predicted allocation</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                    </div>
+                    <div class="metric-value">{{ annual_vol }}%</div>
+                    <div class="metric-label">Volatility</div>
+                    <div class="metric-desc">Measures portfolio risk. Lower values indicate greater stability</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <circle cx="12" cy="12" r="1"></circle>
+                        </svg>
+                    </div>
+                    <div class="metric-value">{{ sharpe_ratio }}</div>
+                    <div class="metric-label">Sharpe Ratio</div>
+                    <div class="metric-desc">Risk-adjusted return. Above 1 is good, above 2 is excellent</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="insight-section">
+            <div class="insight-box">
+                <h3>Portfolio Insight</h3>
+                <p>
+                    The model allocated the largest position to
+                    <strong>{{ company_names[ns.max_stock] }} ({{ ns.max_stock }})</strong>
+                    at <strong>{{ (ns.max_weight * 100)|round(1) }}%</strong> of the portfolio,
+                    {{ insights[ns.max_stock] }}
+                </p>
+                <p class="insight-metric">
+                    {% if sharpe_ratio > 2 %}
+                    <strong>Sharpe Ratio: {{ sharpe_ratio }}</strong> &mdash; Excellent risk-adjusted
+                    returns. Values above 2.0 indicate the predicted return strongly compensates for
+                    the level of risk taken. This allocation is well-balanced for a risk-aware investor.
+                    {% elif sharpe_ratio > 1 %}
+                    <strong>Sharpe Ratio: {{ sharpe_ratio }}</strong> &mdash; Good risk-adjusted
+                    returns. A value above 1.0 indicates the return is proportional to the risk.
+                    Review the allocation chart above to confirm it matches your investment objectives.
+                    {% else %}
+                    <strong>Sharpe Ratio: {{ sharpe_ratio }}</strong> &mdash; Below the recommended
+                    threshold of 1.0. Higher values indicate better risk-adjusted performance.
+                    Try adjusting your expected daily returns and re-running the prediction.
+                    {% endif %}
+                </p>
+            </div>
+        </section>
+
+        <div class="result-actions">
+            <a href="{{ url_for('home') }}" class="btn-outline">Try Again</a>
+            <a href="{{ url_for('home') }}" class="btn-primary">New Prediction</a>
         </div>
 
-        <h3>Portfolio Metrics</h3>
-        <div class="metrics">
-            <div class="metric">
-                <h3>Expected Annual Return</h3>
-                <p>{{ annual_return }}%</p>
-            </div>
-            <div class="metric">
-                <h3>Portfolio Volatility</h3>
-                <p>{{ annual_vol }}%</p>
-            </div>
-            <div class="metric">
-                <h3>Sharpe Ratio</h3>
-                <p>{{ sharpe_ratio }}</p>
-            </div>
-        </div>
+        <footer class="footer">
+            <p>Portfolio Optimization with ANN &mdash; Built with Flask + TensorFlow + Keras</p>
+            <p class="footer-note">This tool is for educational purposes only. Not financial advice.</p>
+        </footer>
 
-        <a href="{{ url_for('home') }}" class="button">Back</a>
     </div>
 </body>
 </html>

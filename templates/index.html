@@ -1,19 +1,143 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Portfolio Optimization ANN</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Optimization with ANN</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h2>Enter Daily Returns for Stocks</h2>
-        <form action="/predict" method="post">
-            {% for ticker in ['AAPL','MSFT','AMZN','TSLA','SPY'] %}
-                <label>{{ ticker }}:</label>
-                <input type="text" name="{{ ticker }}" placeholder="e.g. 0.001">
-            {% endfor %}
-            <button type="submit">Predict Portfolio</button>
-        </form>
+    <div class="app-wrapper">
+
+        <header class="hero">
+            <div class="hero-badge">AI-Powered</div>
+            <h1>Portfolio Optimization <span class="accent">with ANN</span></h1>
+            <p class="hero-subtitle">
+                Leverage a trained Artificial Neural Network to find the optimal portfolio allocation
+                for a selection of top US stocks. Enter your expected daily returns and let AI compute
+                the ideal balance of risk and reward.
+            </p>
+        </header>
+
+        <section class="steps-section">
+            <h2 class="section-title">How It Works</h2>
+            <div class="steps">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Enter Returns</h3>
+                    <p>Input your expected daily return for each stock as a decimal (e.g., 0.002 for +0.2%)</p>
+                </div>
+                <div class="step-arrow">→</div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>AI Predicts</h3>
+                    <p>The ANN model computes the optimal weight allocation across all stocks</p>
+                </div>
+                <div class="step-arrow">→</div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Review Portfolio</h3>
+                    <p>Analyze your recommended allocation, projected return, risk, and Sharpe ratio</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="form-section">
+            <div class="container">
+                <h2>Enter Your Stock Returns</h2>
+                <p class="form-description">
+                    Enter your expected <strong>daily return</strong> for each stock as a decimal
+                    (e.g., <strong>0.002</strong> for +0.2%). Typical values range between
+                    <strong>-0.02</strong> (-2%) and <strong>+0.02</strong> (+2%). Click
+                    <strong>Sample Values</strong> to pre-fill reasonable estimates, then adjust
+                    as needed before running the prediction.
+                </p>
+                <form action="/predict" method="post">
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="AAPL">AAPL</label>
+                            <input type="number" step="any" id="AAPL" name="AAPL" placeholder="e.g. 0.002" required>
+                            <span class="input-hint">Apple Inc.</span>
+                        </div>
+                        <div class="input-group">
+                            <label for="MSFT">MSFT</label>
+                            <input type="number" step="any" id="MSFT" name="MSFT" placeholder="e.g. 0.002" required>
+                            <span class="input-hint">Microsoft Corporation</span>
+                        </div>
+                        <div class="input-group">
+                            <label for="AMZN">AMZN</label>
+                            <input type="number" step="any" id="AMZN" name="AMZN" placeholder="e.g. 0.002" required>
+                            <span class="input-hint">Amazon.com Inc.</span>
+                        </div>
+                        <div class="input-group">
+                            <label for="TSLA">TSLA</label>
+                            <input type="number" step="any" id="TSLA" name="TSLA" placeholder="e.g. 0.002" required>
+                            <span class="input-hint">Tesla Inc.</span>
+                        </div>
+                        <div class="input-group">
+                            <label for="SPY">SPY</label>
+                            <input type="number" step="any" id="SPY" name="SPY" placeholder="e.g. 0.002" required>
+                            <span class="input-hint">SPDR S&amp;P 500 ETF</span>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="fillSamples()">Sample Values</button>
+                        <button type="submit" class="btn-primary">Predict Portfolio</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="stocks-section">
+            <h2 class="section-title">Stocks in This Model</h2>
+            <div class="stocks-grid">
+                <div class="stock-card">
+                    <span class="stock-ticker">AAPL</span>
+                    <span class="stock-name">Apple Inc.</span>
+                </div>
+                <div class="stock-card">
+                    <span class="stock-ticker">MSFT</span>
+                    <span class="stock-name">Microsoft Corporation</span>
+                </div>
+                <div class="stock-card">
+                    <span class="stock-ticker">AMZN</span>
+                    <span class="stock-name">Amazon.com Inc.</span>
+                </div>
+                <div class="stock-card">
+                    <span class="stock-ticker">TSLA</span>
+                    <span class="stock-name">Tesla Inc.</span>
+                </div>
+                <div class="stock-card">
+                    <span class="stock-ticker">SPY</span>
+                    <span class="stock-name">SPDR S&amp;P 500 ETF</span>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>Portfolio Optimization with ANN &mdash; Built with Flask + TensorFlow + Keras</p>
+            <p class="footer-note">This tool is for educational purposes only. Not financial advice.</p>
+        </footer>
+
     </div>
+
+    <script>
+        function fillSamples() {
+            var samples = {
+                'AAPL': 0.0015,
+                'MSFT': 0.0018,
+                'AMZN': 0.0022,
+                'TSLA': 0.0035,
+                'SPY': 0.0008
+            };
+            for (var ticker in samples) {
+                var input = document.getElementById(ticker);
+                if (input) input.value = samples[ticker];
+            }
+        }
+    </script>
 </body>
 </html>

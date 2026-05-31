@@ -24,3 +24,19 @@ Thumbs.db
 
 # Logs
 *.log
+server_error.txt
+server_output.txt
+
+# Jupyter
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
